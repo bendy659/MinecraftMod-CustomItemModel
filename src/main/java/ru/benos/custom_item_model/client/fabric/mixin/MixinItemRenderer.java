@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +30,8 @@ public class MixinItemRenderer {
             BakedModel originalModel,
             CallbackInfo ci
     ) {
-        String itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
+        ResourceLocation registryItems = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+        String itemId = "%s:item/%s".formatted( registryItems.getNamespace(), registryItems.getPath() );
 
         if (ModelsData.INSTANCE.getMAP().get(itemId) != null) {
             int cmd;

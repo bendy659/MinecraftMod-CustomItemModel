@@ -59,6 +59,9 @@ dependencies {
     implementation( kotlin("reflect") )
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
+    // Kotlin Fabric Language //
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.13.6+kotlin.2.2.20")
+
     // GeckoLib //
     modImplementation("software.bernie.geckolib:geckolib-fabric-$minecraft:${mod.dep("geckolib")}")
     implementation("com.eliotlash.mclib:mclib:20")

@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import org.joml.Quaternionf
 import ru.benos.custom_item_model.client.CIM.F
+import ru.benos.custom_item_model.client.CIM.LOGGER
 import ru.benos.custom_item_model.client.CIM.rl
 import software.bernie.geckolib.animatable.GeoAnimatable
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache
@@ -76,8 +77,9 @@ object FakeRenderer {
     ) {
         if (stack.components.get(DataComponents.CUSTOM_MODEL_DATA)?.value == 0) return
 
-        val itemId = BuiltInRegistries.ITEM.getKey(stack.item).toString()
-        val modelPath = ModelsData.MAP[itemId]?.get(customModelData) ?: "cim:error"
+        val registryItems = BuiltInRegistries.ITEM.getKey(stack.item)
+        val itemId = "%s:item/%s".format( registryItems.namespace, registryItems.path )
+        val modelPath = ModelsData.MAP[itemId]?.get(customModelData) ?: "cim:item/error"
 
         val animatable = animatableCache.computeIfAbsent(modelPath) { FakeItem() }
         val renderer = rendererCache.computeIfAbsent(modelPath) { GeoObjectRenderer( FakeModel(modelPath.rl) ) }
@@ -88,7 +90,7 @@ object FakeRenderer {
         // Apply transforms //
         val transformData = ModelsData.DISPLAY_TRANSFORM[modelPath]
         if (transformData != null) {
-            val transform = transformData[context] ?: ItemTransform.NO_TRANSFORM
+            val transform = transformData[context.serializedName] ?: ItemTransform.NO_TRANSFORM
 
             if (
                 context.serializedName.contains("hand", true) ||

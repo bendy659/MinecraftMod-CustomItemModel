@@ -11,12 +11,13 @@
     "icon": "assets/${id}/icon.png",
     "environment": "*",
     "entrypoints": {
-        "client": [ "ru.benos.custom_item_model.client.fabric.CIMFabric" ]
+        "client": [ { "adapter": "kotlin", "value": "ru.benos.custom_item_model.client.fabric.CIMFabric" } ]
     },
     "mixins": [ "cim-fabric.mixins.json" ],
     "depends": {
         "fabricloader": ">=0.15",
         "minecraft": "${minecraft}",
-        "geckolib": ">=4 <5"
+        "geckolib": ">=4 <5",
+        "fabric-language-kotlin": ">=1.13.6+kotlin.2.2.20"
     }
 }
