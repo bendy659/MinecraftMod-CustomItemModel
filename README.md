@@ -1,7 +1,7 @@
 <div align="center">
 
 # \# --- [ CIM | Custom Item Model ] --- \#
-# Give your items a little life.
+# Give your items a little bit of life
 
 ---
 
@@ -35,7 +35,7 @@ using simple vanilla-style JSON.
 > - Models → `geo/example.geo.json`,
 > - Animations → `animations/example.animation.json`,
 > - Textures → `textures/item/example.png` (and `example.png.mcmeta` for animated textures),
-> - Displays model → `models/item/example.json`.
+> - Display model → `models/item/example.json`.
 > 
 > `example` is your unique model name.
 > 
@@ -50,38 +50,77 @@ using simple vanilla-style JSON.
 > 
 > `example` - это уникальное имя модели.
 
-> Step 3:  
-> Edit your display model and add:
+> [EN]
+> Step 3: Edit your display model and add:
 > ```json
 > {
->     "render_provider": "cim"
+>     "render_provider": "cim" // add this line
+> }
+> ```
+> 
+> ---
+> 
+> [RU]
+> Шаг 3: Отредактируйте отображаемую модель и добавьте:
+> ```json
+> {
+>     "render_provider": "cim" // Добавьте эту строчку
 > }
 > ```
 
-> Step 4:  
-> Add `custom_model_data` override in an item:
+> Step 4: Add `custom_model_data` override in an item:
 > ```json
 > {
 >   "overrides": [
 >     {
->       "predicate": { "custom_model_data": 1 },
->       "model": "cim:item/example"
+>       "predicate": { "custom_model_data": 1 }, // item component name and value
+>       "model": "cim:item/example" // display model
 >     }
 >   ]
 > }
 > ```
 > where:
 > `1` - unique id for this model  
-> `cim:item/example` - path to your display model
+> `cim:item/example` - path to your display model (which is located exactly in
+`<namespace>:models/item/`, !!!NOT `<namespace>:geo/`!!!)
+> 
+> ---
+> 
+> [RU]
+> Шаг 4: Добавьте переопределение `custom_model_data` в предмете:
+> ```json
+> {
+>   "overrides": [
+>     {
+>       "predicate": { "custom_model_data": 1 }, // Компонент предмета и значение
+>       "model": "cim:item/example" // Отображаемая модель
+>     }
+>   ]
+> }
+> ```
+> где:
+> `1` - Уникальный ID для текущего предмета
+> `cim:item/example` - Путь до отображаемой модели (которая находится именно в
+`<namespace>:models/item/`, !!!НЕ `<namespace>:geo/`!!!)
 
-> Step 5: Enjoy!
+> Step 5: Enjoy! | Веселитесь!
 
 </div>
 
 ---
 
-## - [ Planned ] -
+## - [ Plans | Планы ] -
 
+<div align="left">
+
+> [EN]
 > - Support for multiple animation states (drop, hold, gui..)
+> 
+> ---
+> 
+> [RU]
+> - Поддержка нескольких состояний анимаций (брошен, удерживаемый, интерфейс..)
+
+</div>
 
 </div>
