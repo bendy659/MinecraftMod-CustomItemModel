@@ -1,44 +1,87 @@
-# Stonecutter template
+<div align="center">
 
-If you have some issues with template ping me (@JavaJumper) in [Kiku's realm](https://discord.gg/TBgNUCfryS) or official fabric discord
+# \# --- [ CIM | Custom Item Model ] --- \#
+# Give your items a little life.
 
-This template allows you create multiloader multversion mod using stonecutter and architectury 
+---
 
-It is based on my CustomCursor project
+## - [ Description | Описание ] -
 
-## Setup
+[EN] CIM (Custom Item Model) adds support for fully-custom animated item models
+using simple vanilla-style JSON.
 
-To change versions check settings.gradle.kts
-Currently default versions are these,
-but you can easily add other versions if you need that
-- 1.20.1, fabric, lexforge
-- 1.20.4, fabric, neoforge
-- 1.21.1, fabric, neoforge
-- 1.21.3, fabric, neoforge
-- 1.21.4, fabric, neoforge
-- 1.21.5, fabric, neoforge
+[RU] CIM добавляет поддержку полноценных кастомных и АНИМИРУЕМЫХ предметных
+моделей через обычный JSON
 
-You can use c# script to automatically change all template names.
-Open RenameTemplate.cs, change names in replacements array and run "dotnet run" in this directory
-I would highly recommend to do this before opening project in your IDE, and then remove all c# related files from project
-(obj and bin folders, .csproj and script itself). Also you can remove c# stuff from .gitignore (there is comment for that)
+---
 
+## - [ How it works | Как работает ] -
 
-## Build tools usage
+<div align="left">
 
-To start current active version use runActive task
+> [EN]
+> Step 1: Create in your resourcepack next folders/directories:  
+> - `geo`, `animations`,  
+> - `models/item`, `textures/item`.
+> ---
+> 
+> [RU]
+> Шаг 1: Создайте в своём ресурспаке следующие папки/директории:
+> - `geo`, `animations`,  
+> - `models/item`, `textures/item`.
 
-For testing all versions you can use chiseledRunAllClients, it runs all possible version and loader variants (in random(?) order)
+> [EN]
+> Step 2: Place models/animations/textures/display:  
+> - Models → `geo/example.geo.json`,
+> - Animations → `animations/example.animation.json`,
+> - Textures → `textures/item/example.png` (and `example.png.mcmeta` for animated textures),
+> - Displays model → `models/item/example.json`.
+> 
+> `example` is your unique model name.
+> 
+> ---
+> 
+> [RU]
+> Шаг 2: Расположите свои модели/анимации/текстуры/отображение:
+> - Модели → `geo/example.geo.json`,
+> - Анимации → `animations/example.animation.json`,
+> - Текстуры → `textures/item/example.png` (and `example.png.mcmeta` for animated textures),
+> - Отображения → `models/item/example.json`.
+> 
+> `example` - это уникальное имя модели.
 
-Also template had publishing set up, you need to specify project id for modrinth and curseforge in gradle.properties, and tokens for these sites in local.properties (it is gitignored, check local.properties.example). After that use chiseledPublishMods task
+> Step 3:  
+> Edit your display model and add:
+> ```json
+> {
+>     "render_provider": "cim"
+> }
+> ```
 
-## Template usage
+> Step 4:  
+> Add `custom_model_data` override in an item:
+> ```json
+> {
+>   "overrides": [
+>     {
+>       "predicate": { "custom_model_data": 1 },
+>       "model": "cim:item/example"
+>     }
+>   ]
+> }
+> ```
+> where:
+> `1` - unique id for this model  
+> `cim:item/example` - path to your display model
 
-Template already has some code setup: 
-- common and platform specific entrypoints
-- ModPlatform interface for platform specific code
-- example config screen with mod menu integration 
-- example mixin (clientside)
-- class for simple file IO 
-- common entrypoint with logger, modid, ModPlatform object instance
-- en_us lang file
+> Step 5: Enjoy!
+
+</div>
+
+---
+
+## - [ Planned ] -
+
+> - Support for multiple animation states (drop, hold, gui..)
+
+</div>

@@ -5,6 +5,9 @@ plugins {
     id("architectury-plugin")
     id("me.modmuss50.mod-publish-plugin")
     id("com.github.johnrengelman.shadow")
+
+    kotlin("jvm") version "2.2.20"
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 val minecraft = stonecutter.current.version
@@ -12,39 +15,63 @@ val loader = loom.platform.get().name.lowercase()
 
 version = "${mod.version}+$minecraft"
 group = mod.group
-base {
-    archivesName.set("${mod.id}-$loader")
-}
+
+base { archivesName.set("${mod.id}-$loader") }
 
 architectury.common(stonecutter.tree.branches.mapNotNull {
     if (stonecutter.current.project !in it) null
-    else it.prop("loom.platform")
+    else it.project.prop("loom.platform")
 })
 repositories {
     maven("https://maven.neoforged.net/releases/")
-
-    //modmenu
     maven("https://maven.terraformersmc.com/")
-    //placeholder api (modmenu depencency)
     maven("https://maven.nucleoid.xyz/")
+
+    maven("https://maven.parchmentmc.org")
+
+    maven {
+        name = "GeckoLib"
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+        content {
+                includeGroupByRegex("software\\.bernie.*")
+                includeGroup("com.eliotlash.mclib")
+        }
+}
 }
 dependencies {
     minecraft("com.mojang:minecraft:$minecraft")
 
+    val parchmentVersion: Map<String, String> = mapOf(
+        "1.21.1" to "2024.11.17",
+        "1.20.1" to "2023.09.03"
+    )
+
+    mappings(loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-$minecraft:${parchmentVersion[minecraft]}@zip")
+    })
+    
+    // Architectury API //
+    modImplementation("dev.architectury:architectury-$loader:${mod.dep("architectury_api")}")
+
+    // Kotlin lib's //
+    implementation( kotlin("stdlib") )
+    implementation( kotlin("reflect") )
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
+    // GeckoLib //
+    modImplementation("software.bernie.geckolib:geckolib-fabric-$minecraft:${mod.dep("geckolib")}")
+    implementation("com.eliotlash.mclib:mclib:20")
+
     if (loader == "fabric") {
         modImplementation("net.fabricmc:fabric-loader:${mod.dep("fabric_loader")}")
-        mappings("net.fabricmc:yarn:$minecraft+build.${mod.dep("yarn_build")}:v2")
         modImplementation("com.terraformersmc:modmenu:${mod.dep("modmenu_version")}")
 
-        //some features (like automatic resource loading from non vanilla namespaces) work only with fabric API installed
-        //for example translations from assets/modid/lang/en_us.json won't be working, same stuff with textures
-        //but we keep runtime only to not accidentally depend on fabric's api, because it doesn't exist in neo/forge
-        modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:${mod.dep("fabric_version")}")
+        modImplementation("net.fabricmc.fabric-api:fabric-api:${mod.dep("fabric_version")}")
 
     }
     if (loader == "forge") {
         "forge"("net.minecraftforge:forge:${minecraft}-${mod.dep("forge_loader")}")
-        mappings("net.fabricmc:yarn:$minecraft+build.${mod.dep("yarn_build")}:v2")
 
         "io.github.llamalad7:mixinextras-forge:${mod.dep("mixin_extras")}".let {
             implementation(it)
@@ -53,37 +80,31 @@ dependencies {
     }
     if (loader == "neoforge") {
         "neoForge"("net.neoforged:neoforge:${mod.dep("neoforge_loader")}")
-        mappings(loom.layered {
-            mappings("net.fabricmc:yarn:$minecraft+build.${mod.dep("yarn_build")}:v2")
-            mod.dep("neoforge_patch").takeUnless { it.startsWith('[') }?.let {
-                mappings("dev.architectury:yarn-mappings-patch-neoforge:$it")
-            }
-        })
     }
 }
 
 loom {
-    accessWidenerPath = rootProject.file("src/main/resources/template.accesswidener")
+    accessWidenerPath = rootProject.file("src/main/resources/${mod.id}.accesswidener")
 
     decompilers {
-        get("vineflower").apply { // Adds names to lambdas - useful for mixins
-            options.put("mark-corresponding-synthetics", "1")
+        get("vineflower").apply { options.put("mark-corresponding-synthetics", "1") }
+    }
+
+    if (loader == "forge") forge.mixinConfigs("${mod.id}-common.mixins.json", "${mod.id}-forge.mixins.json")
+
+    runConfigs.all {
+        if (environment == "client") {
+            programArg("--username=_BENDY659_")
+            programArg("--uuid=dbbbde03-1813-4364-82b7-4738f555aaf7")
         }
     }
-    if (loader == "forge") {
-        forge.mixinConfigs(
-            "template-common.mixins.json",
-            "template-forge.mixins.json",
-        )
-    }
 }
-
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(localPropertiesFile.inputStream())
-}
+
+if (localPropertiesFile.exists()) localProperties.load(localPropertiesFile.inputStream())
+
 publishMods {
     val modrinthToken = localProperties.getProperty("publish.modrinthToken", "")
     val curseforgeToken = localProperties.getProperty("publish.curseforgeToken", "")
@@ -100,6 +121,7 @@ publishMods {
     modLoaders.add(loader)
 
     val targets = property("mod.mc_targets").toString().split(' ')
+
     modrinth {
         projectId = property("publish.modrinth").toString()
         accessToken = modrinthToken
@@ -145,9 +167,7 @@ tasks.remapJar {
     dependsOn(tasks.shadowJar)
 }
 
-tasks.jar {
-    archiveClassifier = "dev"
-}
+tasks.jar {  archiveClassifier = "dev" }
 
 val buildAndCollect = tasks.register<Copy>("buildAndCollect") {
     group = "versioned"
@@ -175,21 +195,24 @@ tasks.processResources {
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "minecraft" to mod.prop("mc_dep_fabric")
+        "minecraft" to mod.prop("mc_dep_fabric"),
+        "author" to mod.prop("author")
     )
     properties(
         listOf("META-INF/mods.toml", "pack.mcmeta"),
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "minecraft" to mod.prop("mc_dep_forgelike")
+        "minecraft" to mod.prop("mc_dep_forgelike"),
+        "author" to mod.prop("author")
     )
     properties(
         listOf("META-INF/neoforge.mods.toml", "pack.mcmeta"),
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "minecraft" to mod.prop("mc_dep_forgelike")
+        "minecraft" to mod.prop("mc_dep_forgelike"),
+        "author" to mod.prop("author")
     )
 }
 
