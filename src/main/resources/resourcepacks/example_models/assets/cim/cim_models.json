@@ -1,0 +1,14 @@
+{
+    "entries": [
+        {
+            "items": ["minecraft:stick"],
+            "predicate": [ { "name": "custom_model_data", "value": 1 } ],
+            "model": "cim:matrix_cube"
+        },
+        {
+            "items": ["minecraft:golden_sword"],
+            "predicate": [ { "name": "custom_model_data", "value": 1 } ],
+            "model": "cim:magic_sword"
+        }
+    ]
+}

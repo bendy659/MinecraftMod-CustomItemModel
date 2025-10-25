@@ -1,7 +1,6 @@
 {
   "credit": "Author by _BENDY659_ (STUPID-AI)",
   "parent": "builtin/entity",
-  "render_provider": "cim",
   "texture_size": [
     32,
     32

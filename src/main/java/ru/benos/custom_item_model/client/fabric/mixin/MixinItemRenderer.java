@@ -4,9 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.benos.custom_item_model.client.FakeRenderer;
-import ru.benos.custom_item_model.client.ModelsData;
 
 @Mixin(ItemRenderer.class)
 public class MixinItemRenderer {
@@ -30,20 +26,18 @@ public class MixinItemRenderer {
             BakedModel originalModel,
             CallbackInfo ci
     ) {
-        ResourceLocation registryItems = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
-        String itemId = "%s:item/%s".formatted( registryItems.getNamespace(), registryItems.getPath() );
+        var origItemId = FakeRenderer.INSTANCE.itemLocation(itemStack);
+        var renderContext = new FakeRenderer.Context(
+                itemStack,
+                displayContext,
+                leftHand,
+                poseStack,
+                bufferSource,
+                combinedOverlay
+        );
 
-        if (ModelsData.INSTANCE.getMAP().get(itemId) != null) {
-            int cmd;
+        var isCancel = FakeRenderer.INSTANCE.render(renderContext);
 
-            if (itemStack.getComponents().has(DataComponents.CUSTOM_MODEL_DATA)) {
-                cmd = itemStack.getComponents().get(DataComponents.CUSTOM_MODEL_DATA).value();
-
-                if (ModelsData.INSTANCE.getMAP().containsKey(itemId)) {
-                    FakeRenderer.INSTANCE.render(itemStack, displayContext, leftHand, poseStack, bufferSource, combinedLight, combinedOverlay, cmd);
-                    ci.cancel();
-                }
-            }
-        }
+        if (isCancel) ci.cancel();
     }
 }

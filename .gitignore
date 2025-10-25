@@ -453,3 +453,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /.kotlin/sessions/kotlin-compiler-15972637666067200043.salive
+/.concept/
