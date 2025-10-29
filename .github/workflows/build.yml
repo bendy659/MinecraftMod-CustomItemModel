@@ -17,7 +17,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build
-        run: ./gradlew chiseledBuild --stacktrace --info
+        run: ./gradlew shadowJar --stacktrace --info
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
