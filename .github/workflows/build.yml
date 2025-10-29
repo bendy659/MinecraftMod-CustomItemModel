@@ -1,5 +1,4 @@
 name: Build and Release
-
 on:
   push:
     branches: [ master ]
@@ -8,44 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    outputs:
-      matrix: ${{ steps.gen_matrix.outputs.matrix }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      # Получаем mod.version и строим matrix
-      - name: Generate matrix from gradle.properties
-        id: gen_matrix
-        run: |
-          # мод версия
-          version=$(grep "^mod.version=" gradle.properties | cut -d'=' -f2)
-          echo "mod_version=$version" >> $GITHUB_ENV
-          echo "Mod version: $version"
-
-          # версии майна и лоадеры
-          versions=$(grep "^workflow.versions=" gradle.properties | cut -d'=' -f2)
-          loaders=$(grep "^workflow.loaders=" gradle.properties | cut -d'=' -f2)
-
-          IFS=',' read -ra ver_list <<< "$versions"
-          IFS=',' read -ra load_list <<< "$loaders"
-
-          json="["
-          for v in "${ver_list[@]}"; do
-            for l in "${load_list[@]}"; do
-              json="$json{\"mc\":\"$v\",\"loader\":\"$l\"},"
-            done
-          done
-          json="${json::-1}]"
-          echo "matrix=$json" >> $GITHUB_OUTPUT
-
-  build_matrix:
-    needs: build
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.build.outputs.matrix) }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -62,49 +23,38 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build ${{ matrix.loader }} for MC ${{ matrix.mc }}
-        run: ./gradlew :versions:${{ matrix.mc }}-${{ matrix.loader }}:shadowJar --stacktrace --info
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: CIM-${{ matrix.mc }}-${{ matrix.loader }}-${{ env.mod_version }}
-          path: versions/${{ matrix.mc }}-${{ matrix.loader }}/build/libs/*.jar
-
-  release:
-    needs: build_matrix
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
       - name: Get mod version
         id: get_version
         run: |
-          version=$(grep "^mod.version=" gradle.properties | cut -d'=' -f2)
-          echo "mod_version=$version" >> $GITHUB_ENV
+          MOD_VERSION=$(grep "^mod.version=" gradle.properties | cut -d'=' -f2)
+          echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - name: Build all versions
+        run: ./gradlew shadowJar --stacktrace --info
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          path: build-artifacts
+          name: CIM-builds
+          path: versions/*/build/libs/*.jar
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.mod_version }}-release
-          release_name: Release ${{ env.mod_version }}
+          tag_name: ${{ github.ref_name }}-release
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}
 
-      - name: Upload all artifacts to Release
+      - name: Upload Release Assets
         run: |
-          for file in $(find build-artifacts -type f -name '*.jar'); do
-            echo "Uploading $file"
-            gh release upload "${{ env.mod_version }}-release" "$file" --clobber
+          for jar in versions/*/build/libs/*.jar; do
+            curl -s -X POST \
+              -H "Authorization: token ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$jar" \
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename $jar)"
           done
-        env:
-          GITHUB_TOKEN: ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}
