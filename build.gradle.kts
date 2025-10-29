@@ -224,10 +224,7 @@ tasks.build {
     description = "Must run through 'chiseledBuild'"
 }
 
-val pMcVersion: String = minecraft
-val pLoader: String = loader ?: "main"
-
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveBaseName.set("CIM-$pMcVersion-$pLoader")
+    archiveFileName.set("CIM-$minecraft-$loader-${mod.prop("version")}.jar")
     archiveClassifier.set("")
 }
