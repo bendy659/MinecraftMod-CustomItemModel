@@ -35,7 +35,7 @@ jobs:
 
             # Билд
             - name: Build ${{ matrix.loader }} for MC ${{ matrix.mc_version }}
-            - run: ./gradlew shadowJar \
+              run: ./gradlew shadowJar \
                   -PmcVersion=${{ matrix.mc_version }} \
                   -Ploader=${{ matrix.loader }} \
                   -PbranchSuffix=${{ env.branchSuffix }} \
