@@ -35,12 +35,12 @@ jobs:
 
       # Билд
       - name: Build ${{ matrix.loader }} for MC ${{ matrix.mc_version }}
-        run: ./gradlew shadowJar -PmcVersion=${{ matrix.mc_version }} -Ploader=${{ matrix.loader }} -PbranchSuffix=${{ env.branchSuffix }} --stacktrace --info
+        run: ./gradlew shadowJar -PmcVersion=${{ matrix.mc_version }} -Ploader=${{ matrix.loader }} --stacktrace --info
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: CIM-${{ matrix.mc_version }}-${{ matrix.loader }}-${{ env.branchSuffix }}
+          name: CIM-${{ matrix.mc_version }}-${{ matrix.loader }}
           path: build/libs/*.jar
 
       - name: Create Release
@@ -58,6 +58,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/libs/CIM-${{ matrix.mc_version }}-${{ matrix.loader }}-${{ env.branchSuffix }}.jar
-          asset_name: CIM-${{ matrix.mc_version }}-${{ matrix.loader }}-${{ env.branchSuffix }}.jar
+          asset_path: build/libs/CIM-${{ matrix.mc_version }}-${{ matrix.loader }}.jar
+          asset_name: CIM-${{ matrix.mc_version }}-${{ matrix.loader }}.jar
           asset_content_type: application/java-archive
