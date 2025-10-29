@@ -8,13 +8,14 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # === Checkout repo ===
-      - name: Checkout repository
+      # 1. Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      # === Gradle setup ===
+      # 2. Setup Gradle
       - uses: gradle/actions/setup-gradle@v3
 
+      # 3. Setup Java
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
@@ -22,28 +23,29 @@ jobs:
           distribution: 'microsoft'
           cache: 'gradle'
 
+      # 4. Make gradlew executable
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
-      # === Get mod version ===
+      # 5. Get mod version from gradle.properties
       - name: Get mod version
         id: get_version
         run: |
           MOD_VERSION=$(grep "^mod.version=" gradle.properties | cut -d'=' -f2)
           echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
 
-      # === Build all versions ===
+      # 6. Build all versions
       - name: Build all versions
         run: ./gradlew shadowJar --stacktrace --info
 
-      # === Upload artifacts for debugging ===
-      - name: Upload all jar artifacts
+      # 7. Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: CIM-builds
           path: versions/*/build/libs/*.jar
 
-      # === Create GitHub release ===
+      # 8. Create release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -55,15 +57,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}
 
-      # === Upload all jars to release ===
-      - name: Upload release assets
+      # 9. Upload jars to release
+      - name: Upload Release Assets
         run: |
           for jar in versions/*/build/libs/*.jar; do
             BASENAME=$(basename "$jar")
+            # urlencode filename
+            ENCODED_NAME=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$BASENAME'))")
             echo "Uploading $BASENAME..."
             curl -s -X POST \
               -H "Authorization: token ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}" \
               -H "Content-Type: application/java-archive" \
               --data-binary @"$jar" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$BASENAME"
+              "${{ steps.create_release.outputs.upload_url }}?name=$ENCODED_NAME"
           done
