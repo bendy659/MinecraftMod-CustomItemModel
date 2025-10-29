@@ -35,11 +35,7 @@ jobs:
 
             # Билд
             - name: Build ${{ matrix.loader }} for MC ${{ matrix.mc_version }}
-              run: ./gradlew shadowJar \
-                  -PmcVersion=${{ matrix.mc_version }} \
-                  -Ploader=${{ matrix.loader }} \
-                  -PbranchSuffix=${{ env.branchSuffix }} \
-                  --stacktrace --info
+              run: ./gradlew shadowJar -PmcVersion=${{ matrix.mc_version }} -Ploader=${{ matrix.loader }} -PbranchSuffix=${{ env.branchSuffix }} --stacktrace --info
 
             - name: Upload artifacts
               uses: actions/upload-artifact@v4
