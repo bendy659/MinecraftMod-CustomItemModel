@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.PackType
-import java.util.Optional
+import java.util.*
 
 interface IModLoader {
     val loader: String
@@ -52,12 +52,19 @@ object CIM {
     val String.literal: Component get() = Component.literal(this)
 
     val ResourceLocation.normalizeLocation: ResourceLocation get() {
-        var path = this.path
+        val prefix = "cim_models/"
+        val pathWithoutPrefix = this.path.removePrefix(prefix)
 
-        path = path.removePrefix("cim_models/")
+        // #Опиши
+        val parts = pathWithoutPrefix.split("/")
 
-        path = path.replaceAfterLast(".", "")
+        // Убираем расширение только у последнего сегмента
+        val last = parts.last()
+        val lastWithoutExt = last.substringBeforeLast('.')
 
-        return "${this.namespace}:$path".rl
+        // Собираем обратно путь
+        val normalizedPath = (parts.dropLast(1) + lastWithoutExt).joinToString("/")
+
+        return "${this.namespace}:$normalizedPath".rl
     }
 }

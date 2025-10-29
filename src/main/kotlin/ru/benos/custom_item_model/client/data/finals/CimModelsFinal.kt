@@ -4,9 +4,7 @@ import net.minecraft.client.renderer.block.model.ItemTransform
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemDisplayContext
 import ru.benos.custom_item_model.client.CIM.rl
-import ru.benos.custom_item_model.client.data.finals.CimModelDataContextFinal.Companion.toFinal
 import ru.benos.custom_item_model.client.data.serializables.CimModelData
-import ru.benos.custom_item_model.client.data.serializables.CimModelDataContext
 import ru.benos.custom_item_model.client.data.serializables.CimModelProperties
 import software.bernie.geckolib.cache.`object`.BakedGeoModel
 import software.bernie.geckolib.loading.`object`.BakedAnimations
@@ -27,7 +25,8 @@ object CimModelsFinal {
     private val _DISPLAYS: MutableMap<ResourceLocation, Map<ItemDisplayContext, ItemTransform>> = mutableMapOf()
     val DISPLAYS: MutableMap<ResourceLocation, Map<ItemDisplayContext, ItemTransform>> = _DISPLAYS
 
-    fun applyCimModelData(data: CimModelData) {
-
-    }
+    fun applyCimModelData(data: CimModelData) =
+        data.entries.forEach { context ->
+            CimModelDataContextFinal(context.predicate, context.predicateMode, context.model.rl, context.force)
+        }
 }

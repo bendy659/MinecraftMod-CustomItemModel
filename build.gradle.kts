@@ -223,3 +223,12 @@ tasks.build {
     group = "versioned"
     description = "Must run through 'chiseledBuild'"
 }
+
+val pMcVersion: String = minecraft
+val pLoader: String = loader
+val pBranchSuffix: String = findProperty("branchSuffix") as? String ?: "main"
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    archiveBaseName.set("CIM-$pMcVersion-$pLoader-$pBranchSuffix")
+    archiveClassifier.set("")
+}
