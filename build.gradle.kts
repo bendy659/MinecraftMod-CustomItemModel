@@ -161,7 +161,6 @@ val shadowBundle: Configuration by configurations.creating {
 tasks.shadowJar {
     configurations = listOf(shadowBundle)
     archiveClassifier = "dev-shadow"
-    minimize()
 }
 
 tasks.remapJar {
