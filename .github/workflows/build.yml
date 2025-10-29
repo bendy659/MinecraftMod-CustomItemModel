@@ -45,12 +45,12 @@ jobs:
           name: CIM-builds
           path: versions/*/build/libs/*.jar
 
-      # 8. Создаем или обновляем релиз
+      # 8. Создаем или обновляем релиз с тегом по версии мода
       - name: Create or Update Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}
-          automatic_release_tag: "${{ github.ref_name }}-release"
-          release_name: "Release ${{ github.ref_name }}"
+          automatic_release_tag: "v${{ env.MOD_VERSION }}"
+          release_name: "Release v${{ env.MOD_VERSION }}"
           prerelease: false
           files: versions/*/build/libs/*.jar
