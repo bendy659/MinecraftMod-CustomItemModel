@@ -8,9 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repo
+      # === Checkout repo ===
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # === Gradle setup ===
       - uses: gradle/actions/setup-gradle@v3
 
       - name: Setup Java 21
@@ -23,21 +25,25 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
+      # === Get mod version ===
       - name: Get mod version
         id: get_version
         run: |
           MOD_VERSION=$(grep "^mod.version=" gradle.properties | cut -d'=' -f2)
           echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
 
+      # === Build all versions ===
       - name: Build all versions
         run: ./gradlew shadowJar --stacktrace --info
 
-      - name: Upload artifacts
+      # === Upload artifacts for debugging ===
+      - name: Upload all jar artifacts
         uses: actions/upload-artifact@v4
         with:
           name: CIM-builds
           path: versions/*/build/libs/*.jar
 
+      # === Create GitHub release ===
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -49,12 +55,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}
 
-      - name: Upload Release Assets
+      # === Upload all jars to release ===
+      - name: Upload release assets
         run: |
           for jar in versions/*/build/libs/*.jar; do
+            BASENAME=$(basename "$jar")
+            echo "Uploading $BASENAME..."
             curl -s -X POST \
               -H "Authorization: token ${{ secrets.MC_MOD_CUSTOMITEMMODEL_ACTION }}" \
-              -H "Content-Type: application/octet-stream" \
+              -H "Content-Type: application/java-archive" \
               --data-binary @"$jar" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename $jar)"
+              "${{ steps.create_release.outputs.upload_url }}?name=$BASENAME"
           done
