@@ -43,7 +43,8 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     strategy:
-      matrix: ${{fromJSON(needs.build.outputs.matrix)}}
+      matrix:
+        include: ${{ fromJSON(needs.build.outputs.matrix) }}
 
     steps:
       - name: Checkout repo
