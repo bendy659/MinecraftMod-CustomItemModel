@@ -27,12 +27,6 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
 
-      # Определяем ветку для приставки
-      - name: Set branch suffix
-        run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          echo "branchSuffix=$BRANCH_NAME" >> $GITHUB_ENV
-
       # Билд
       - name: Build ${{ matrix.loader }} for MC ${{ matrix.mc_version }}
         run: ./gradlew shadowJar -PmcVersion=${{ matrix.mc_version }} -Ploader=${{ matrix.loader }} --stacktrace --info

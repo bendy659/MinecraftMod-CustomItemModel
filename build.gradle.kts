@@ -225,10 +225,9 @@ tasks.build {
 }
 
 val pMcVersion: String = minecraft
-val pLoader: String = loader
-val pBranchSuffix: String = findProperty("branchSuffix") as? String ?: "main"
+val pLoader: String = loader ?: "main"
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveBaseName.set("CIM-$pMcVersion-$pLoader-$pBranchSuffix")
+    archiveBaseName.set("CIM-$pMcVersion-$pLoader")
     archiveClassifier.set("")
 }
