@@ -2,13 +2,19 @@
     "entries": [
         {
             "items": ["minecraft:stick"],
-            "predicate": [ { "name": "custom_model_data", "value": 1 } ],
+            "predicate": { "custom_model_data": 1 },
             "model": "cim:matrix_cube"
         },
         {
             "items": ["minecraft:golden_sword"],
-            "predicate": [ { "name": "custom_model_data", "value": 1 } ],
+            "predicate": { "custom_model_data": 1 },
             "model": "cim:magic_sword"
+        },
+        {
+            "items": ["minecraft:potion"],
+            "predicate": { "potion_contents": { "potion": "minecraft:water" } },
+            "predicate_mode": "any",
+            "model": "cim:bottle_of_water"
         }
     ]
 }

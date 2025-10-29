@@ -15,9 +15,9 @@ class FakeItem: GeoAnimatable {
     val CACHE: AnimatableInstanceCache = GeckoLibUtil.createInstanceCache(this)
 
     override fun registerControllers(p0: AnimatableManager.ControllerRegistrar) {
-        p0.add( AnimationController(this) { state ->
-            state.setAndContinue( RawAnimation.begin().thenLoop("all") )
-        } )
+        //p0.add( AnimationController(this) { state ->
+        //    state.setAndContinue( RawAnimation.begin().thenLoop("all") )
+        //} )
     }
 
     override fun getAnimatableInstanceCache(): AnimatableInstanceCache = CACHE

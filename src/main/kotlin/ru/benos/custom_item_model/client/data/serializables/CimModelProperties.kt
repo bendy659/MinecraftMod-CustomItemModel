@@ -13,7 +13,7 @@ data class CimModelProperties(
     @SerialName("render_mode")
     val renderMode: CimItemRenderMode = CimItemRenderMode.NORMAL,
     @SerialName("display_context")
-    val displayContext: Map<ItemDisplayContext, CimItemDisplayContext> = mapOf(ItemDisplayContext.NONE to CimItemDisplayContext.LOCAL),
+    val displayContext: Map<String, CimItemDisplayContext> = mapOf("none" to CimItemDisplayContext.LOCAL),
     @SerialName("animation_controller")
     val animationController: Map<String, CimItemAnimationControllerContext> = emptyMap()
 )

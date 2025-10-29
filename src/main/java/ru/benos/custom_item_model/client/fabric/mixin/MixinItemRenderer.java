@@ -33,7 +33,7 @@ public class MixinItemRenderer {
                 leftHand,
                 poseStack,
                 bufferSource,
-                combinedOverlay
+                combinedLight
         );
 
         var isCancel = FakeRenderer.INSTANCE.render(renderContext);

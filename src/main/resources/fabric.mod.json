@@ -11,7 +11,7 @@
     "icon": "assets/${id}/icon.png",
     "environment": "*",
     "entrypoints": {
-        "client": [ { "adapter": "kotlin", "value": "ru.benos.custom_item_model.client.fabric.CIMFabric" } ]
+        "client": [ { "adapter": "kotlin", "value": "ru.benos.custom_item_model.client.loaders.fabric.CIMFabric"} ]
     },
     "mixins": [ "cim-fabric.mixins.json" ],
     "depends": {
